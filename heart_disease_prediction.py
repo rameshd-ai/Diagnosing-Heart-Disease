@@ -198,3 +198,63 @@ Image(filename = 'tree.png')
 
 
 
+
+y_predict = model.predict(X_test)
+y_pred_quant = model.predict_proba(X_test)[:, 1]
+y_pred_bin = model.predict(X_test)
+
+
+
+
+#Assess the fit with a confusion matrix,
+confusion_matrix = confusion_matrix(y_test, y_pred_bin)
+confusion_matrix
+
+"""
+Diagnostic tests are often sold, marketed, cited and used with sensitivity and specificity as the headline metrics. 
+"""
+total=sum(sum(confusion_matrix))
+
+sensitivity = confusion_matrix[0,0]/(confusion_matrix[0,0]+confusion_matrix[1,0])
+print('Sensitivity : ', sensitivity )
+
+specificity = confusion_matrix[1,1]/(confusion_matrix[1,1]+confusion_matrix[0,1])
+print('Specificity : ', specificity)
+
+
+#That seems reasonable. Let's also check with a Receiver Operator Curve (ROC),
+#https://en.wikipedia.org/wiki/Receiver_operating_characteristic
+
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_quant)
+
+fig, ax = plt.subplots()
+ax.plot(fpr, tpr)
+ax.plot([0, 1], [0, 1], transform=ax.transAxes, ls="--", c=".3")
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.0])
+plt.rcParams['font.size'] = 12
+plt.title('ROC curve for diabetes classifier')
+plt.xlabel('False Positive Rate (1 - Specificity)')
+plt.ylabel('True Positive Rate (Sensitivity)')
+plt.grid(True)
+
+
+
+"""
+
+
+Another common metric is the Area Under the Curve, or AUC. This is a convenient way to capture the performance of a model in a single number, although it's not without certain issues. As a rule of thumb, an AUC can be classed as follows,
+
+    0.90 - 1.00 = excellent
+    0.80 - 0.90 = good
+    0.70 - 0.80 = fair
+    0.60 - 0.70 = poor
+    0.50 - 0.60 = fail
+
+Let's see what the above ROC gives us,
+
+
+"""
+
+
+auc(fpr, tpr)
