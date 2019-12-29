@@ -258,3 +258,76 @@ Let's see what the above ROC gives us,
 
 
 auc(fpr, tpr)
+
+
+
+
+
+
+
+perm = PermutationImportance(model, random_state=1).fit(X_test, y_test)
+eli5.show_weights(perm, feature_names = X_test.columns.tolist())
+
+
+
+base_features = dt.columns.values.tolist()
+base_features.remove('target')
+
+feat_name = 'num_major_vessels'
+pdp_dist = pdp.pdp_isolate(model=model, dataset=X_test, model_features=base_features, feature=feat_name)
+
+pdp.pdp_plot(pdp_dist, feat_name)
+plt.show()
+
+
+
+feat_name = 'age'
+pdp_dist = pdp.pdp_isolate(model=model, dataset=X_test, model_features=base_features, feature=feat_name)
+
+pdp.pdp_plot(pdp_dist, feat_name)
+plt.show()
+
+
+
+
+
+
+feat_name = 'st_depression'
+pdp_dist = pdp.pdp_isolate(model=model, dataset=X_test, model_features=base_features, feature=feat_name)
+
+pdp.pdp_plot(pdp_dist, feat_name)
+plt.show()
+
+
+inter1  =  pdp.pdp_interact(model=model, dataset=X_test, model_features=base_features, features=['st_slope_upsloping', 'st_depression'])
+
+pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=['st_slope_upsloping', 'st_depression'], plot_type='contour')
+plt.show()
+
+inter1  =  pdp.pdp_interact(model=model, dataset=X_test, model_features=base_features, features=['st_slope_flat', 'st_depression'])
+
+pdp.pdp_interact_plot(pdp_interact_out=inter1, feature_names=['st_slope_flat', 'st_depression'], plot_type='contour')
+plt.show()
+
+
+
+
+
+
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)
+
+shap.summary_plot(shap_values[1], X_test, plot_type="bar")
+
+
+shap.summary_plot(shap_values[1], X_test)
+
+
+
+
+def heart_disease_risk_factors(model, patient):
+
+    explainer = shap.TreeExplainer(model)
+    shap_values = explainer.shap_values(patient)
+    shap.initjs()
+    return shap.force_plot(explainer.expected_value[1], shap_values[1], patient)
